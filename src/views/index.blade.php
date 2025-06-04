@@ -64,6 +64,20 @@
           pluginsOpts: pluginOptions,
       });
 
+      //////////
+      const blocks = @json($blocks);
+
+      blocks.forEach(block => {
+          editor.BlockManager.add(block.id, {
+              label: block.label,
+              category: block.category,
+              content: block.content,
+              traits: block.traits,
+              script: block.script
+          });
+      });
+
+
       editor.Commands.add('save-page', {
         run(editor) {
           const html = editor.getHtml();
