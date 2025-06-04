@@ -8,7 +8,7 @@ class PageBuilderServiceProvider  extends ServiceProvider
 {
     const CONFIG_PATH = __DIR__ . '/../config';
     const ROUTE_PATH = __DIR__ . '/../routes';
-    const VIEW_PATH = __DIR__ . '/views';
+    const VIEW_PATH = __DIR__ . '/views/bzzix-pagebuilder';
     const ASSET_PATH = __DIR__ . '/../assets';
 
     /**
