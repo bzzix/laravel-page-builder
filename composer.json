@@ -4,12 +4,12 @@
   "type": "library",
   "license": "MIT",
   "authors": [
-        {
-            "name": "Mahmoud Hassan",
-            "email": "info@bzzix.com",
-            "role": "Developer"
-        }
-    ],
+    {
+      "name": "Mahmoud Hassan",
+      "email": "info@bzzix.com",
+      "role": "Developer"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "Bzzix\\PageBuilder\\": "src/"
@@ -26,10 +26,6 @@
     "php": "^8.1",
     "illuminate/support": "^10|^11"
   },
-  "repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/bzzix/laravel-page-builder"
-    }
-]
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }
