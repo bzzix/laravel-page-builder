@@ -8,7 +8,7 @@ class PageBuilderServiceProvider  extends ServiceProvider
 {
     const CONFIG_PATH = __DIR__ . '/../config';
     const ROUTE_PATH = __DIR__ . '/../routes';
-    const VIEW_PATH = __DIR__ . '/views/pagebuilder';
+    const VIEW_PATH = __DIR__ . '/views';
     const ASSET_PATH = __DIR__ . '/../assets';
 
     /**
@@ -33,9 +33,9 @@ class PageBuilderServiceProvider  extends ServiceProvider
         $this->loadRoutesFrom(self::ROUTE_PATH . '/web.php');
 
         // Load views
-        $this->loadViewsFrom(self::VIEW_PATH, 'pagebuilder');
+        $this->loadViewsFrom(self::VIEW_PATH, 'bzzix-pagebuilder');
         $this->publishes([
-                self::VIEW_PATH => resource_path('views/vendor/bzzix-pagebuilder'),
+                self::VIEW_PATH . '/bzzix-pagebuilder' => resource_path('views/vendor/bzzix-pagebuilder'),
         ], 'views');
 
         Blade::directive('PageBuilderScript', function ($expression) {

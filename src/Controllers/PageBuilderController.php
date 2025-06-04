@@ -23,13 +23,8 @@ class PageBuilderController extends Controller
         // جرّب أولاً المسار المنشور (بعد النسخ باستخدام vendor:publish)
         $publishedBlocksPath = resource_path('views/vendor/bzzix-pagebuilder/blocks');
 
-        // إذا لم يكن موجودًا، استخدم المسار الداخلي غير المنشور
-        $defaultBlocksPath = resource_path('views/bzzix-pagebuilder/blocks');
-
         // اختر المسار الموجود فعليًا
-        $blocksPath = File::exists($publishedBlocksPath)
-            ? $publishedBlocksPath
-            : (File::exists($defaultBlocksPath) ? $defaultBlocksPath : null);
+        $blocksPath = File::exists($publishedBlocksPath) ? $publishedBlocksPath : null;
 
         // إذا لم يوجد أي مسار، أعِد الصفحة بدون بلوكات
         if (!$blocksPath) {
@@ -50,7 +45,7 @@ class PageBuilderController extends Controller
             foreach ($blockFiles as $file) {
                 $filename = Str::before($file->getFilename(), '.blade.php');
 
-                $viewPath = 'bzzix-pagebuilder.blocks.' . $categoryName . '.' . $filename;
+                $viewPath = 'vendor.bzzix-pagebuilder.blocks.' . $categoryName . '.' . $filename;
 
                 // تنظيف متغير block من أي مشاركة سابقة
                 view()->share('block', null);
