@@ -34,13 +34,16 @@ class PageBuilderServiceProvider  extends ServiceProvider
 
         // Load views
         $this->loadViewsFrom(self::VIEW_PATH, 'bzzix-pagebuilder');
+        $this->publishes([
+                self::VIEW_PATH => resource_path('views/vendor/bzzix-pagebuilder'),
+        ], 'views');
 
-        Blade::directive('GrapesjsScript', function ($expression) {
+        Blade::directive('PageBuilderScript', function ($expression) {
             $output = "<script src=\"{{asset('bzzix-pagebuilder/dist/grapes.min.js')}}\"></script>";
             return $output;
         });
 
-        Blade::directive('GrapesjsStyle', function ($expression) {
+        Blade::directive('PageBuilderStyle', function ($expression) {
             $output = "<link href=\"{{asset('bzzix-pagebuilder/dist/css/grapes.min.css')}}\" rel=\"stylesheet\" />";
             return $output;
         });

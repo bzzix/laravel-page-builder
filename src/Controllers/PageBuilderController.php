@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class PageBuilderController extends Controller
 {
@@ -14,12 +15,26 @@ class PageBuilderController extends Controller
     {
     }
 
+
     public function getIndex(Request $request)
     {
-
         $blocks = [];
 
-        $blocksPath = resource_path('views/blocks');
+        // جرّب أولاً المسار المنشور (بعد النسخ باستخدام vendor:publish)
+        $publishedBlocksPath = resource_path('views/vendor/bzzix-pagebuilder/blocks');
+
+        // إذا لم يكن موجودًا، استخدم المسار الداخلي غير المنشور
+        $defaultBlocksPath = resource_path('views/bzzix-pagebuilder/blocks');
+
+        // اختر المسار الموجود فعليًا
+        $blocksPath = File::exists($publishedBlocksPath)
+            ? $publishedBlocksPath
+            : (File::exists($defaultBlocksPath) ? $defaultBlocksPath : null);
+
+        // إذا لم يوجد أي مسار، أعِد الصفحة بدون بلوكات
+        if (!$blocksPath) {
+            return view('bzzix-pagebuilder::index', compact('blocks'));
+        }
 
         $categoryFolders = File::directories($blocksPath);
 
@@ -28,30 +43,33 @@ class PageBuilderController extends Controller
 
             $blockFiles = File::files($categoryFolder);
 
+            if (empty($blockFiles)) {
+                continue;
+            }
+
             foreach ($blockFiles as $file) {
-                $viewPath = 'blocks.' . $categoryName . '.' . $file->getFilenameWithoutExtension();
+                $filename = Str::before($file->getFilename(), '.blade.php');
 
-                // تهيئة المتغير $block داخل كل ملف blade
-                $blockData = null;
-                // باستخدام طريقة رفع متغيرات باستخدام view()->make و share مؤقت مثلاً:
-                view()->share('block', null); // تنظيف سابق
+                $viewPath = 'bzzix-pagebuilder.blocks.' . $categoryName . '.' . $filename;
 
+                // تنظيف متغير block من أي مشاركة سابقة
+                view()->share('block', null);
+
+                // تنفيذ العرض لجلب المتغير $block إن وُجد
                 $output = view($viewPath)->render();
 
-                // بعد الرندر المفروض يكون $block موجود في الـ view
                 $blockData = view()->shared('block');
 
                 if (!$blockData) {
-                    // اذا لم يتم تعريف $block داخل الملف نحدد افتراضياً
                     $blockData = [
-                        'id' => $categoryName . '-' . $file->getFilenameWithoutExtension(),
-                        'label' => ucfirst($file->getFilenameWithoutExtension()),
+                        'id' => $categoryName . '-' . $filename,
+                        'label' => ucfirst($filename),
                         'category' => $categoryName,
                         'traits' => [],
                         'script' => ''
                     ];
                 } else {
-                    // تأكد أن 'category' في $blockData تساوي اسم الفولدر
+                    // ضبط التصنيف بشكل صحيح
                     $blockData['category'] = $categoryName;
                 }
 
@@ -68,6 +86,8 @@ class PageBuilderController extends Controller
 
         return view('bzzix-pagebuilder::index', compact('blocks'));
     }
+
+
 
     public function postIndex(Request $request)
     {
