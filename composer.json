@@ -1,0 +1,35 @@
+{
+  "name": "bzzix/laravel-page-builder",
+  "description": "GrapesJS integration for Laravel",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+        {
+            "name": "Mahmoud Hassan",
+            "email": "info@bzzix.com",
+            "role": "Developer"
+        }
+    ],
+  "autoload": {
+    "psr-4": {
+      "Bzzix\\PageBuilder\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Bzzix\\PageBuilder\\PageBuilderServiceProvider"
+      ]
+    }
+  },
+  "require": {
+    "php": "^8.1",
+    "illuminate/support": "^10|^11"
+  },
+  "repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/bzzix/laravel-page-builder"
+    }
+]
+}
