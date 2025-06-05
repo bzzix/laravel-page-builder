@@ -10,6 +10,7 @@ class PageBuilderServiceProvider  extends ServiceProvider
     const ROUTE_PATH = __DIR__ . '/../routes';
     const VIEW_PATH = __DIR__ . '/views';
     const ASSET_PATH = __DIR__ . '/../assets';
+    const TRANS_PATH = __DIR__ . '/lang';
 
     /**
      * Bootstrap services.
@@ -47,6 +48,8 @@ class PageBuilderServiceProvider  extends ServiceProvider
             $output = "<link href=\"{{asset('bzzix-pagebuilder/dist/css/grapes.min.css')}}\" rel=\"stylesheet\" />";
             return $output;
         });
+
+        $this->loadJsonTranslationsFrom(self::TRANS_PATH, 'lang');
     }
 
         /**

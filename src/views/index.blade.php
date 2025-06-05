@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Page Builder</title>
+    <title>{{__('Page Builder')}}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- CSS الأساسي --}}
@@ -36,7 +36,7 @@
 
   </head>
 <body>
-    <div id="gjs" style="height:100vh;"></div>
+    <div id="gjs" style="height:100vh"></div>
 
     <script src="https://unpkg.com/grapesjs"></script>
 
@@ -44,6 +44,11 @@
     @foreach ($pluginScripts as $script)
         <script src="{{ $script }}"></script>
     @endforeach
+
+    @php
+      $rtlLocales = ['ar', 'he', 'fa', 'ur', 'ps', 'sd']; // اللغات التي تستخدم اتجاه RTL
+      $isRtl = in_array(app()->getLocale(), $rtlLocales);
+  @endphp
 
     <script>
 
@@ -55,7 +60,7 @@
           fromElement: false,
           height: '100vh',
           storageManager: false,
-          components: '<h1>Hello Page Builder</h1>',
+          components: '<h1>{{__('Hello Page Builder')}}</h1>',
           canvas: {
               styles: {!! json_encode(config('bzzix-pagebuilder.styles', [])) !!},
               scripts: {!! json_encode(config('bzzix-pagebuilder.scripts', [])) !!}
@@ -63,6 +68,19 @@
           plugins: pluginNames,
           pluginsOpts: pluginOptions,
       });
+        
+    @if($isRtl)
+        editor.addComponents(`
+            <style>
+                .gjs-dashed {
+                    direction: rtl !important;
+                }
+            </style>
+        `);
+    @endif
+      
+    
+    editor.Panels.getButton('views', 'open-blocks').set('active', true);
 
       //////////
       const blocks = @json($blocks);
@@ -104,4 +122,3 @@
     </script>
 </body>
 </html>
-
