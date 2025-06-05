@@ -70,12 +70,14 @@
       });
         
     @if($isRtl)
-        editor.addComponents(`
-            <style>
-                .gjs-dashed {
-                    direction: rtl !important;
-                }
-            </style>
+        editor.setStyle(`
+            body {
+                direction: rtl;
+                text-align: right !important;
+            }
+            .gjs-title, gjs-pn-panel {
+                text-align: right !important;
+            }
         `);
     @endif
       
