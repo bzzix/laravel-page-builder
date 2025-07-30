@@ -15,7 +15,7 @@ cd path/to/your/laravel-project
 You can install this library using Composer. Run the following command:
 
 ```bash
-composer composer require bzzix/laravel-page-builder
+composer require bzzix/laravel-page-builder
 ```
 
 ## Step 3: Register the ServiceProvider
