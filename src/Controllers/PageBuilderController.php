@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Bzzix\PageBuilder\Models\Page;
+use Bzzix\PageBuilder\Models\Pagebuilder;
 
 class PageBuilderController extends Controller
 {
@@ -114,12 +114,12 @@ class PageBuilderController extends Controller
 
             $user = $request->user();
 
-            if (!class_exists(Page::class)) {
+            if (!class_exists(Pagebuilder::class)) {
                 throw new \Exception('Page model not found. Please check if the package is properly installed.');
             }
 
             // إنشاء الصفحة مع البيانات المرسلة
-            $page = Page::create([
+            $page = Pagebuilder::create([
                 'title' => $validated['title'],
                 'slug' => $validated['slug'] ?? Str::slug($validated['title']),
                 'content' => $validated['html'], // نستخدم HTML كمحتوى
@@ -134,7 +134,7 @@ class PageBuilderController extends Controller
                 'success' => true,
                 'message' => 'تم إنشاء الصفحة بنجاح',
                 'page' => $page,
-                'redirect' => route(config('bzzix-pagebuilder.update_route'), $page->slug)
+                'redirect' => route('bzzix-pagebuilder.update_route', $page->slug)
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -147,7 +147,7 @@ class PageBuilderController extends Controller
 
     public function getUpdate($slug)
     {
-        $page = Page::where('slug', $slug)->firstOrFail();
+        $page = Pagebuilder::where('slug', $slug)->firstOrFail();
 
         $blocks = [];
         $statuses = [
@@ -228,11 +228,11 @@ class PageBuilderController extends Controller
                 'components' => 'nullable',
             ]);
 
-            if (!class_exists(Page::class)) {
+            if (!class_exists(Pagebuilder::class)) {
                 throw new \Exception('Page model not found. Please check if the package is properly installed.');
             }
             
-            $page = Page::where('slug', $slug)->firstOrFail();
+            $page = Pagebuilder::where('slug', $slug)->firstOrFail();
 
             $page->update([
                 'title' => $validated['title'] ?? $page->title,
@@ -247,7 +247,7 @@ class PageBuilderController extends Controller
                 'success' => true,
                 'message' => 'تم تحديث الصفحة بنجاح',
                 'page' => $page,
-                'redirect' => route('page.edit', ['slug' => $page->slug])
+                //'redirect' => route('bzzix-pagebuilder.update_route', $page->slug)
             ]);
         } catch (\Exception $e) {
             return response()->json([

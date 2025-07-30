@@ -26,11 +26,47 @@
         <link rel="stylesheet" href="{{ $style }}">
     @endforeach
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { margin: 0; }
         .gjs-pn-panel.gjs-pn-commands {
             display: flex;
             justify-content: space-between;
+        }
+        .floating-save-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            padding: 15px 25px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .floating-save-btn:hover {
+            background: #218838;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .floating-save-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .floating-save-btn i {
+            font-size: 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spinning {
+            animation: spin 1s linear infinite;
         }
     </style>
 
@@ -62,10 +98,13 @@
             </div>
         </div>
 
-        <button id="save-page-btn" style="padding:8px 18px;background:#28a745;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:16px;">
-            {{ __('حفظ الصفحة') }}
-        </button>
     </div>
+
+    <button id="save-page-btn" class="floating-save-btn">
+        <i class="fas fa-save"></i>
+        <span>{{ __('حفظ الصفحة') }}</span>
+    </button>
+
     <div id="gjs" style="height:calc(100vh - 50px)"></div>
 
     <script src="https://unpkg.com/grapesjs"></script>
@@ -127,49 +166,63 @@
           });
       });
 
-      editor.Commands.add('save-page', {
-        run(editor) {
-          const title = document.getElementById('page-title').value;
-          const status = document.getElementById('page-status').value;
-          const html = editor.getHtml();
-          const css = editor.getCss();
-          const components = editor.getComponents();
-
-          fetch(window.location.href, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({
-              title,
-              status,
-              html,
-              css,
-              components
-            })
-          })
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  alert(data.message);
-                  if (data.redirect) {
-                      window.location.href = data.redirect;
-                  }
-              } else {
-                  alert('حدث خطأ: ' + data.message);
-              }
-          })
-          .catch(error => {
-              console.error('Error:', error);
-              alert('حدث خطأ أثناء حفظ الصفحة');
-          });
-        }
-      });
-
       // زر الحفظ
-      document.getElementById('save-page-btn').addEventListener('click', function() {
-        editor.runCommand('save-page');
+      document.getElementById('save-page-btn').addEventListener('click', async function() {
+        const btn = this;
+        const icon = btn.querySelector('i');
+        const span = btn.querySelector('span');
+        
+        try {
+            // تعطيل الزر وإظهار أيقونة التحميل
+            btn.disabled = true;
+            icon.classList.remove('fa-save');
+            icon.classList.add('fa-spinner', 'spinning');
+            span.textContent = 'جاري الحفظ...';
+
+            const title = document.getElementById('page-title').value;
+            const status = document.getElementById('page-status').value;
+            const html = editor.getHtml();
+            const css = editor.getCss();
+            const components = editor.getComponents();
+
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    title,
+                    status,
+                    html,
+                    css,
+                    components
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                //alert(data.message);
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            } else {
+                throw new Error(data.message || 'حدث خطأ غير معروف');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء الحفظ: ' + error.message);
+        } finally {
+            // إعادة الزر لحالته الأصلية
+            setTimeout(() => {
+                btn.disabled = false;
+                icon.classList.remove('fa-spinner', 'spinning');
+                icon.classList.add('fa-save');
+                span.textContent = 'حفظ الصفحة';
+            }, 1000);
+        }
       });
     </script>
 </body>
