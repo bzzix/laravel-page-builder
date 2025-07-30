@@ -7,7 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Bzzix\PageBuilder\Models\Pagebuilder;
+use Bzzix\PageBuilder\Models\Pagebuilder
+;
 
 class PageBuilderController extends Controller
 {
@@ -54,13 +55,27 @@ class PageBuilderController extends Controller
 
                 $viewPath = 'vendor.bzzix-pagebuilder.blocks.' . $categoryName . '.' . $filename;
 
-                // تنظيف متغير block من أي مشاركة سابقة
-                view()->share('block', null);
-
-                // تنفيذ العرض لجلب المتغير $block إن وُجد
+                // قراءة محتوى ملف البلوك
+                $fileContent = File::get($file->getPathname());
+                
+                // استخراج الكود PHP من بين @php و @endphp
+                preg_match('/@php(.*?)@endphp/s', $fileContent, $matches);
+                
+                // تنفيذ العرض للحصول على ال output
                 $output = view($viewPath)->render();
-
-                $blockData = view()->shared('block');
+                
+                // استخراج متغير $block من الكود PHP
+                $blockData = null;
+                if (!empty($matches[1])) {
+                    $phpCode = trim($matches[1]);
+                    ob_start();
+                    $block = null;
+                    eval($phpCode);
+                    ob_end_clean();
+                    if (isset($block)) {
+                        $blockData = $block;
+                    }
+                }
 
                 if (!$blockData) {
                     $blockData = [
@@ -76,11 +91,11 @@ class PageBuilderController extends Controller
                 }
 
                 $blocks[] = [
-                    'id' => $blockData['id'],
-                    'label' => $blockData['label'],
-                    'category' => $blockData['category'],
-                    'traits' => $blockData['traits'],
-                    'script' => $blockData['script'],
+                    'id' => $blockData['id'] ?? '',
+                    'label' => $blockData['label'] ?? ucfirst($filename),
+                    'category' => $blockData['category'] ?? $categoryName,
+                    'traits' => $blockData['traits'] ?? '',
+                    'script' => $blockData['script'] ?? '',
                     'content' => $output
                 ];
             }
@@ -189,8 +204,8 @@ class PageBuilderController extends Controller
                 $output = view($viewPath)->render();
 
                 $blockData = view()->shared('block');
-
                 if (!$blockData) {
+                    
                     $blockData = [
                         'id' => $categoryName . '-' . $filename,
                         'label' => ucfirst($filename),
@@ -247,7 +262,7 @@ class PageBuilderController extends Controller
                 'success' => true,
                 'message' => 'تم تحديث الصفحة بنجاح',
                 'page' => $page,
-                //'redirect' => route('bzzix-pagebuilder.update_route', $page->slug)
+                //'redirect' => route('bzzix-pagebuilder.update_route', $Pagebuilder->slug)
             ]);
         } catch (\Exception $e) {
             return response()->json([
