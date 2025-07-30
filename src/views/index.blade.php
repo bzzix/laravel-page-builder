@@ -127,20 +127,6 @@
           });
       });
 
-
-    //   // تحديث الـ slug تلقائياً عند تغيير العنوان
-    //   document.getElementById('page-title').addEventListener('input', function(e) {
-    //       const title = e.target.value;
-    //       const slug = title
-    //           .toLowerCase()
-    //           .replace(/ /g, '-')
-    //           .replace(/[^\w-]+/g, '')
-    //           .replace(/--+/g, '-')
-    //           .replace(/^-+/, '')
-    //           .replace(/-+$/, '');
-    //       document.getElementById('page-slug').value = slug;
-    //   });
-
       editor.Commands.add('save-page', {
         run(editor) {
           const title = document.getElementById('page-title').value;
@@ -149,7 +135,7 @@
           const css = editor.getCss();
           const components = editor.getComponents();
 
-          fetch("{{ config('bzzix-pagebuilder.create_route') }}", {
+          fetch(window.location.href, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

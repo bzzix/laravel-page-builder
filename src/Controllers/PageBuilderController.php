@@ -134,7 +134,7 @@ class PageBuilderController extends Controller
                 'success' => true,
                 'message' => 'تم إنشاء الصفحة بنجاح',
                 'page' => $page,
-                'redirect' => route(config('bzzix-pagebuilder.update_route'), ['slug' => $page->slug])
+                'redirect' => route(config('bzzix-pagebuilder.update_route'), $page->slug)
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -145,10 +145,76 @@ class PageBuilderController extends Controller
         }
     }
 
-    public function getUpdate($id)
+    public function getUpdate($slug)
     {
-        $page = Page::where('slug', $id)->firstOrFail();
-        return view('bzzix-pagebuilder::update', compact('page'));
+        $page = Page::where('slug', $slug)->firstOrFail();
+
+        $blocks = [];
+        $statuses = [
+            'draft' => 'مسودة',
+            'published' => 'منشور',
+        ];
+
+        // جرّب أولاً المسار المنشور (بعد النسخ باستخدام vendor:publish)
+        $publishedBlocksPath = resource_path('views/vendor/bzzix-pagebuilder/blocks');
+
+        // اختر المسار الموجود فعليًا
+        $blocksPath = File::exists($publishedBlocksPath) ? $publishedBlocksPath : null;
+
+        // إذا لم يوجد أي مسار، أعِد الصفحة بدون بلوكات
+        if (!$blocksPath) {
+            return view('bzzix-pagebuilder::index', compact('blocks', 'statuses'));
+        }
+
+        $categoryFolders = File::directories($blocksPath);
+
+        foreach ($categoryFolders as $categoryFolder) {
+            $categoryName = basename($categoryFolder);
+
+            $blockFiles = File::files($categoryFolder);
+
+            if (empty($blockFiles)) {
+                continue;
+            }
+
+            foreach ($blockFiles as $file) {
+                $filename = Str::before($file->getFilename(), '.blade.php');
+
+                $viewPath = 'vendor.bzzix-pagebuilder.blocks.' . $categoryName . '.' . $filename;
+
+                // تنظيف متغير block من أي مشاركة سابقة
+                view()->share('block', null);
+
+                // تنفيذ العرض لجلب المتغير $block إن وُجد
+                $output = view($viewPath)->render();
+
+                $blockData = view()->shared('block');
+
+                if (!$blockData) {
+                    $blockData = [
+                        'id' => $categoryName . '-' . $filename,
+                        'label' => ucfirst($filename),
+                        'category' => $categoryName,
+                        'traits' => [],
+                        'script' => ''
+                    ];
+                } else {
+                    // ضبط التصنيف بشكل صحيح
+                    $blockData['category'] = $categoryName;
+                }
+
+                $blocks[] = [
+                    'id' => $blockData['id'],
+                    'label' => $blockData['label'],
+                    'category' => $blockData['category'],
+                    'traits' => $blockData['traits'],
+                    'script' => $blockData['script'],
+                    'content' => $output
+                ];
+            }
+        }
+        
+        return view('bzzix-pagebuilder::update', compact('blocks', 'statuses', 'page'));
     }
 
     public function postUpdate(Request $request, $slug)
@@ -162,6 +228,10 @@ class PageBuilderController extends Controller
                 'components' => 'nullable',
             ]);
 
+            if (!class_exists(Page::class)) {
+                throw new \Exception('Page model not found. Please check if the package is properly installed.');
+            }
+            
             $page = Page::where('slug', $slug)->firstOrFail();
 
             $page->update([
