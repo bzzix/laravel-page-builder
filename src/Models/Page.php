@@ -7,14 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Cviebrock\EloquentSluggable\Sluggable;
 
+class Page extends Model
 {
     use SoftDeletes;
     use Sluggable;
 
-    protected $fillable = ['title', 'slug', 'content', 'user_id', 'status'];
+    protected $fillable = [
+        'title', 
+        'slug', 
+        'content', 
+        'user_id', 
+        'status',
+        'html',
+        'css',
+        'components'
+    ];
+
+    protected $casts = [
+        'components' => 'json'
+    ];
 
     protected $dates = ['deleted_at'];
-
 
     /**
      * Return the sluggable configuration array for this model.

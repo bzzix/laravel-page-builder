@@ -1,8 +1,8 @@
 <?php
 return [
-    'middleware'      => ['web'],
-    'create_route'    => 'grapesjs/new',
-    'update_route'    => 'grapesjs/update/{slug}',
+    'middleware'      => ['web', 'auth'],
+    'create_route'    => 'bzzix-pagebuilder/new',
+    'update_route'    => 'bzzix-pagebuilder/update/{slug}',
     
     // روابط ملفات CSS
     'styles' => [

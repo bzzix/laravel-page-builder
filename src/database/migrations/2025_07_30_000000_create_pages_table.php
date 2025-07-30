@@ -13,6 +13,9 @@ return new class extends Migration {
             $table->string('title');
             $table->string('slug')->unique();
             $table->longText('content')->nullable();
+            $table->longText('html')->nullable();
+            $table->longText('css')->nullable();
+            $table->longText('components')->nullable();
             $table->string('status')->default('draft');
             $table->softDeletes();
             $table->timestamps();

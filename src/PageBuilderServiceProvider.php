@@ -32,8 +32,6 @@ class PageBuilderServiceProvider  extends ServiceProvider
 
         // Load route files
         $this->loadRoutesFrom(self::ROUTE_PATH . '/web.php');
-        $this->loadRoutesFrom(base_path('package/laravel-page-builder/routes/api.php'));
-
         // Load views
         $this->loadViewsFrom(self::VIEW_PATH, 'bzzix-pagebuilder');
         $this->publishes([

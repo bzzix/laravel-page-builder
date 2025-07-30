@@ -36,7 +36,32 @@
 
   </head>
 <body>
-    <div style="display:flex;justify-content:flex-end;padding:10px;background:#f7f7f7;border-bottom:1px solid #eee">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f7f7f7;border-bottom:1px solid #eee">
+        <div style="display:flex;gap:10px;align-items:center">
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label for="page-title" style="font-size:14px;color:#666">عنوان الصفحة:</label>
+                <input type="text" id="page-title" name="title" value="{{ $page->title ?? 'بدون عنوان' }}" 
+                    style="padding:8px;border:1px solid #ddd;border-radius:4px;width:300px">
+            </div>
+            
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label for="page-slug" style="font-size:14px;color:#666">الرابط:</label>
+                <input type="text" id="page-slug" name="slug" value="{{ $page->slug ?? '' }}" 
+                    style="padding:8px;border:1px solid #ddd;border-radius:4px;width:200px" readonly>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:5px">
+                <label for="page-status" style="font-size:14px;color:#666">الحالة:</label>
+                <select id="page-status" name="status" style="padding:8px;border:1px solid #ddd;border-radius:4px;width:150px">
+                    @foreach($statuses as $value => $label)
+                        <option value="{{ $value }}" {{ ($page->status ?? 'draft') == $value ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
         <button id="save-page-btn" style="padding:8px 18px;background:#28a745;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:16px;">
             {{ __('حفظ الصفحة') }}
         </button>
@@ -103,25 +128,55 @@
       });
 
 
+    //   // تحديث الـ slug تلقائياً عند تغيير العنوان
+    //   document.getElementById('page-title').addEventListener('input', function(e) {
+    //       const title = e.target.value;
+    //       const slug = title
+    //           .toLowerCase()
+    //           .replace(/ /g, '-')
+    //           .replace(/[^\w-]+/g, '')
+    //           .replace(/--+/g, '-')
+    //           .replace(/^-+/, '')
+    //           .replace(/-+$/, '');
+    //       document.getElementById('page-slug').value = slug;
+    //   });
+
       editor.Commands.add('save-page', {
         run(editor) {
+          const title = document.getElementById('page-title').value;
+          const status = document.getElementById('page-status').value;
           const html = editor.getHtml();
           const css = editor.getCss();
-          const json = editor.getComponents();
+          const components = editor.getComponents();
 
-          fetch('/api/pages', {
+          fetch("{{ config('bzzix-pagebuilder.create_route') }}", {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
             body: JSON.stringify({
-              html: html,
-              css: css,
-              components: json
+              title,
+              status,
+              html,
+              css,
+              components
             })
-          }).then(res => res.json()).then(data => {
-            alert('تم الحفظ بنجاح');
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  alert(data.message);
+                  if (data.redirect) {
+                      window.location.href = data.redirect;
+                  }
+              } else {
+                  alert('حدث خطأ: ' + data.message);
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('حدث خطأ أثناء حفظ الصفحة');
           });
         }
       });
