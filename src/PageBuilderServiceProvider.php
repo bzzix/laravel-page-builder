@@ -32,6 +32,7 @@ class PageBuilderServiceProvider  extends ServiceProvider
 
         // Load route files
         $this->loadRoutesFrom(self::ROUTE_PATH . '/web.php');
+        $this->loadRoutesFrom(base_path('package/laravel-page-builder/routes/api.php'));
 
         // Load views
         $this->loadViewsFrom(self::VIEW_PATH, 'bzzix-pagebuilder');
@@ -48,6 +49,11 @@ class PageBuilderServiceProvider  extends ServiceProvider
             $output = "<link href=\"{{asset('bzzix-pagebuilder/dist/css/grapes.min.css')}}\" rel=\"stylesheet\" />";
             return $output;
         });
+
+        // Publish migrations
+        $this->publishes([
+            __DIR__ . '/database/migrations/' => database_path('migrations')
+        ], 'migrations');
 
         $this->loadJsonTranslationsFrom(self::TRANS_PATH, 'lang');
     }

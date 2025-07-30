@@ -41,13 +41,17 @@ After registering the ServiceProvider, run the following command to re-generate 
 composer dump-autoload
 ```
 
-## Step 5: Publish Configuration Files
-To publish the configuration files provided by this package, run the following Artisan command:
+## Step 5: Publish Configuration, Assets, and Migrations
+To publish the configuration files, assets, and migrations provided by this package, run:
 
 ```bash
 php artisan vendor:publish --provider="Bzzix\PageBuilder\PageBuilderServiceProvider"
 ```
-This will deploy `asset` files inside the public folder with the name `bzzix-pagebuilder` and the file `bzzix-pagebuilder.php` inside the `config` folder.
+
+This will deploy:
+- `asset` files inside the public folder (`bzzix-pagebuilder`)
+- the config file inside the `config` folder
+- the migration file inside the `database/migrations` folder
 
 ## Step 6: Configure Basic Settings
 To start using this package, follow these steps to configure the basic settings:

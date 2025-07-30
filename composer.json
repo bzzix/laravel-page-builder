@@ -24,7 +24,8 @@
   },
   "require": {
     "php": "^8.1",
-    "illuminate/support": "^10|^11"
+    "illuminate/support": "^10|^11",
+    "cviebrock/eloquent-sluggable": "^9.0"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

@@ -36,7 +36,12 @@
 
   </head>
 <body>
-    <div id="gjs" style="height:100vh"></div>
+    <div style="display:flex;justify-content:flex-end;padding:10px;background:#f7f7f7;border-bottom:1px solid #eee">
+        <button id="save-page-btn" style="padding:8px 18px;background:#28a745;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:16px;">
+            {{ __('حفظ الصفحة') }}
+        </button>
+    </div>
+    <div id="gjs" style="height:calc(100vh - 50px)"></div>
 
     <script src="https://unpkg.com/grapesjs"></script>
 
@@ -48,7 +53,7 @@
     @php
       $rtlLocales = ['ar', 'he', 'fa', 'ur', 'ps', 'sd']; // اللغات التي تستخدم اتجاه RTL
       $isRtl = in_array(app()->getLocale(), $rtlLocales);
-  @endphp
+    @endphp
 
     <script>
 
@@ -121,6 +126,10 @@
         }
       });
 
+      // زر الحفظ
+      document.getElementById('save-page-btn').addEventListener('click', function() {
+        editor.runCommand('save-page');
+      });
     </script>
 </body>
 </html>

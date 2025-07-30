@@ -86,6 +86,25 @@ class PageBuilderController extends Controller
 
     public function postIndex(Request $request)
     {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'nullable|string',
+            'status' => 'nullable|string',
+        ]);
+
+        $user = $request->user();
+
+        $page = new \Bzzix\PageBuilder\Models\Page();
+        $page->title = $validated['title'];
+        $page->content = $validated['content'] ?? null;
+        $page->status = $validated['status'] ?? 'draft';
+        $page->user_id = $user ? $user->id : null;
+        $page->save();
+
+        return response()->json([
+            'success' => true,
+            'page' => $page
+        ]);
     }
 
     public function getUpdate()
